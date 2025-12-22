@@ -60,6 +60,22 @@
 
 ---
 
+## 📸 Screenshots
+
+### Login Page
+<div align="center">
+  <img src="ss/login.png" alt="Kilas Login Page" width="800">
+  <p><em>Modern login interface with gradient design</em></p>
+</div>
+
+### Dashboard
+<div align="center">
+  <img src="ss/dashboard.png" alt="Kilas Dashboard" width="800">
+  <p><em>Beautiful dashboard with real-time monitoring, multi-session management, and built-in API tester</em></p>
+</div>
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -96,10 +112,10 @@ git clone https://github.com/dickyermawan/kilas.git
 cd kilas
 
 # Start with Docker Compose
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ### First Steps
@@ -141,16 +157,16 @@ services:
 
 ```bash
 # Build and start
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f kilas
+docker compose logs -f kilas
 
 # Stop container
-docker-compose down
+docker compose down
 
 # Rebuild after changes
-docker-compose up -d --build
+docker compose up -d --build
 
 # Access container shell
 docker exec -it kilas-gateway sh
@@ -760,7 +776,7 @@ kilas/
 ├── media/                 # Saved media files
 ├── server.js              # Main server file
 ├── Dockerfile             # Docker configuration
-├── docker-compose.yml     # Docker Compose config
+├── docker compose.yml     # Docker Compose config
 ├── .env                   # Environment variables
 └── package.json           # Dependencies
 ```
@@ -846,17 +862,17 @@ npm run dev
 ### Docker Container Issues
 ```bash
 # Check container status
-docker-compose ps
+docker compose ps
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Restart container
-docker-compose restart
+docker compose restart
 
 # Rebuild from scratch
-docker-compose down
-docker-compose up -d --build
+docker compose down
+docker compose up -d --build
 ```
 
 ### API Returns 401 Unauthorized
