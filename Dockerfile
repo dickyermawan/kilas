@@ -1,10 +1,10 @@
-# Multi-stage build for smaller image size
+# Tahap 1: Builder
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Install build dependencies for native modules (sqlite3)
-RUN apk add --no-cache --virtual .build-deps \
+# Install dependensi build untuk modul native (seperti sqlite3)
+RUN apk add --no-cache \
     python3 \
     make \
     g++ \
@@ -12,50 +12,41 @@ RUN apk add --no-cache --virtual .build-deps \
     libc-dev \
     sqlite-dev
 
-# Copy package files
 COPY package*.json ./
 
-# Clean npm cache and install dependencies
-RUN npm cache clean --force && \
-    npm install --production --verbose
+# Seringkali sqlite3 butuh build dari source, jangan pakai --production di tahap ini
+# agar library pendukung kompilasi tetap ada.
+RUN npm install --network-timeout=100000
 
-# Remove build dependencies to reduce image size
-RUN apk del .build-deps
+# Copy seluruh kode untuk build jika diperlukan (misal ada proses transpile)
+COPY . .
 
-# Production stage
+# Tahap 2: Production
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Install runtime dependencies
+# Install runtime dependencies yang diperlukan oleh sqlite
 RUN apk add --no-cache dumb-init sqlite-libs
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
-
-# Copy dependencies from builder
+# Salin hanya node_modules dan file aplikasi dari builder
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app ./ 
 
-# Copy application code
-COPY --chown=nodejs:nodejs . .
+# Pengaturan User dan Folder
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 && \
+    mkdir -p sessions media media/uploads public/images && \
+    chown -R nodejs:nodejs /app
 
-# Create necessary directories with proper permissions
-RUN mkdir -p sessions media media/uploads public/images && \
-    chown -R nodejs:nodejs sessions media public/images
-
-# Switch to non-root user
 USER nodejs
 
-# Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/api/sessions', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+# Health check (disesuaikan agar lebih ringan)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/api/sessions', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
 
-# Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 
-# Start application
 CMD ["node", "server.js"]
