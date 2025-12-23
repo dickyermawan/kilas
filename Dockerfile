@@ -7,13 +7,17 @@ WORKDIR /app
 RUN apk add --no-cache --virtual .build-deps \
     python3 \
     make \
-    g++
+    g++ \
+    gcc \
+    libc-dev \
+    sqlite-dev
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --production
+# Clean npm cache and install dependencies
+RUN npm cache clean --force && \
+    npm install --production --verbose
 
 # Remove build dependencies to reduce image size
 RUN apk del .build-deps
@@ -23,8 +27,8 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Install runtime dependencies
+RUN apk add --no-cache dumb-init sqlite-libs
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
