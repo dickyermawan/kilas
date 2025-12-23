@@ -91,6 +91,10 @@ socket.on('webhook:sent', (data) => {
     if (window.webhookLogger) {
         window.webhookLogger.addLog(data);
     }
+    // Update statistics
+    if (window.app && window.app.statsManager) {
+        window.app.statsManager.updateWebhook(data.success);
+    }
 });
 
 // Event Logging
@@ -99,3 +103,4 @@ socket.on('event:log', (data) => {
         window.app.logEvent(data.type || 'info', data.sessionId, data.text);
     }
 });
+

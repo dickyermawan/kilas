@@ -337,6 +337,13 @@ document.getElementById('btnSendRequest').addEventListener('click', async () => 
         // Show toast notification
         if (res && res.success) {
             Toast.success('Request completed successfully!');
+
+            // Increment Messages Today counter if this was a send message request
+            if (selected.includes('/api/messages/send')) {
+                if (window.app && window.app.statsManager) {
+                    window.app.statsManager.incrementMessages();
+                }
+            }
         } else if (res && res.success === false) {
             Toast.error(res.message || 'Request failed');
         }

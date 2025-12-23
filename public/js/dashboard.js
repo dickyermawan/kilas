@@ -8,12 +8,135 @@ window.app = {
             return;
         }
 
+        // Initialize stats manager
+        this.statsManager.init();
+
         this.bindEvents();
         this.loadSessions();
 
         // Populate stats periodically
         setInterval(this.updateStats.bind(this), 5000);
         this.updateStats();
+    },
+
+    // Statistics Manager for real-time dashboard stats
+    statsManager: {
+        messagesCount: 0,
+        webhookSuccess: 0,
+        webhookTotal: 0,
+        lastWebhookTime: null,
+
+        init: function () {
+            this.loadFromStorage();
+            this.startTimeUpdater();
+        },
+
+        loadFromStorage: function () {
+            // Load messages count (check if same day)
+            const stored = localStorage.getItem('stats_messages_today');
+            if (stored) {
+                try {
+                    const data = JSON.parse(stored);
+                    const today = new Date().toDateString();
+                    if (data.date === today) {
+                        this.messagesCount = data.count || 0;
+                    }
+                } catch (e) {
+                    console.error('Failed to load messages stats:', e);
+                }
+            }
+
+            // Load webhook stats
+            const webhookStored = localStorage.getItem('stats_webhook');
+            if (webhookStored) {
+                try {
+                    const data = JSON.parse(webhookStored);
+                    this.webhookSuccess = data.success || 0;
+                    this.webhookTotal = data.total || 0;
+                    if (data.lastTime) {
+                        this.lastWebhookTime = new Date(data.lastTime);
+                    }
+                } catch (e) {
+                    console.error('Failed to load webhook stats:', e);
+                }
+            }
+
+            this.updateUI();
+        },
+
+        saveMessagesToStorage: function () {
+            const data = {
+                date: new Date().toDateString(),
+                count: this.messagesCount
+            };
+            localStorage.setItem('stats_messages_today', JSON.stringify(data));
+        },
+
+        saveWebhookToStorage: function () {
+            const data = {
+                success: this.webhookSuccess,
+                total: this.webhookTotal,
+                lastTime: this.lastWebhookTime ? this.lastWebhookTime.toISOString() : null
+            };
+            localStorage.setItem('stats_webhook', JSON.stringify(data));
+        },
+
+        incrementMessages: function () {
+            this.messagesCount++;
+            this.saveMessagesToStorage();
+            this.updateUI();
+        },
+
+        updateWebhook: function (success) {
+            this.webhookTotal++;
+            if (success) this.webhookSuccess++;
+            this.lastWebhookTime = new Date();
+            this.saveWebhookToStorage();
+            this.updateUI();
+        },
+
+        updateUI: function () {
+            // Update Messages Today
+            const msgEl = document.getElementById('statMessagesToday');
+            if (msgEl) msgEl.textContent = this.messagesCount;
+
+            // Update Webhook Success with highlighted primary number
+            const webhookEl = document.getElementById('statWebhookSuccess');
+            if (webhookEl) {
+                webhookEl.innerHTML = `<span style="font-size: 2rem; font-weight: 700;">${this.webhookSuccess}</span> <span style="font-size: 1.2rem; opacity: 0.6;">/ ${this.webhookTotal}</span>`;
+            }
+
+            // Update Last Webhook
+            this.updateLastWebhookTime();
+        },
+
+        updateLastWebhookTime: function () {
+            const el = document.getElementById('statLastWebhook');
+            if (!el) return;
+
+            if (!this.lastWebhookTime) {
+                el.textContent = 'Never';
+                return;
+            }
+
+            const now = new Date();
+            const diff = Math.floor((now - this.lastWebhookTime) / 1000);
+
+            if (diff < 60) {
+                el.textContent = 'Just now';
+            } else if (diff < 3600) {
+                el.textContent = `${Math.floor(diff / 60)} min ago`;
+            } else if (diff < 86400) {
+                el.textContent = `${Math.floor(diff / 3600)}h ago`;
+            } else {
+                el.textContent = 'Yesterday';
+            }
+        },
+
+        startTimeUpdater: function () {
+            // Update relative time every minute
+            setInterval(() => this.updateLastWebhookTime(), 60000);
+        }
     },
 
     bindEvents: function () {
@@ -336,13 +459,13 @@ window.app = {
     },
 
     updateStatsData: function (sessions) {
-        const statTotal = document.getElementById('statTotal');
-        const statConnected = document.getElementById('statConnected');
-        const statDisconnected = document.getElementById('statDisconnected');
-
-        if (statTotal) statTotal.textContent = sessions.length;
-        if (statConnected) statConnected.textContent = sessions.filter(s => s.status === 'connected').length;
-        if (statDisconnected) statDisconnected.textContent = sessions.filter(s => s.status !== 'connected').length;
+        // Update Active Sessions stat with highlighted primary number
+        const statActiveSessions = document.getElementById('statActiveSessions');
+        if (statActiveSessions) {
+            const connected = sessions.filter(s => s.status === 'connected').length;
+            const total = sessions.length;
+            statActiveSessions.innerHTML = `<span style="font-size: 2rem; font-weight: 700;">${connected}</span> <span style="font-size: 1.2rem; opacity: 0.6;">/ ${total}</span>`;
+        }
     },
 
     logEvent: function (type, source, message) {
