@@ -16,7 +16,7 @@ RUN apk add --no-cache \
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --production --network-timeout=100000
+RUN npm ci --only=production --network-timeout=100000
 
 # Production stage
 FROM node:20-alpine
