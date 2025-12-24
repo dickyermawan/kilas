@@ -189,7 +189,7 @@ docker compose ps
 
 **3. Access the dashboard:**
 
-Open http://localhost:3000/dashboard in your browser.
+Open http://localhost:3001/dashboard in your browser.
 
 ---
 
