@@ -18,11 +18,9 @@ services:
       - API_KEY=${API_KEY:-admin123}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
     volumes:
-      # Persistent storage for sessions and media
-      - ./sessions:/app/sessions
-      - ./media:/app/media
-      # Optional: Mount custom .env file
-      # - ./.env:/app/.env:ro
+      # Use named volumes for automatic permission handling
+      - sessions_data:/app/sessions
+      - media_data:/app/media
     networks:
       - kilas-network
     # healthcheck:
@@ -40,3 +38,9 @@ services:
 networks:
   kilas-network:
     driver: bridge
+
+volumes:
+  sessions_data:
+    driver: local
+  media_data:
+    driver: local
