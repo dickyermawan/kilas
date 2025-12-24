@@ -31,13 +31,26 @@ const getSocket = async (req, sessionId) => {
 
 // Send Text Message
 router.post('/send-text', async (req, res) => {
-    const { sessionId, chatId, text } = req.body;
+    const { sessionId, chatId, text, quotedMessageId } = req.body;
 
     try {
         const socket = await getSocket(req, sessionId);
         const jid = chatId.includes('@') ? chatId : `${chatId}@s.whatsapp.net`;
 
-        await socket.sendMessage(jid, { text });
+        const messageOptions = {};
+
+        // Add quoted message if provided
+        if (quotedMessageId) {
+            messageOptions.quoted = {
+                key: {
+                    remoteJid: jid,
+                    id: quotedMessageId,
+                    fromMe: false
+                }
+            };
+        }
+
+        await socket.sendMessage(jid, { text }, messageOptions);
         res.json({ success: true, message: 'Message sent' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -174,6 +187,36 @@ router.post('/send-location', async (req, res) => {
             location: { degreesLatitude: latitude, degreesLongitude: longitude, address: address }
         });
         res.json({ success: true, message: 'Location sent' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Start Typing Indicator
+router.post('/typing/start', async (req, res) => {
+    const { sessionId, chatId } = req.body;
+
+    try {
+        const socket = await getSocket(req, sessionId);
+        const jid = chatId.includes('@') ? chatId : `${chatId}@s.whatsapp.net`;
+
+        await socket.sendPresenceUpdate('composing', jid);
+        res.json({ success: true, message: 'Typing indicator started' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Stop Typing Indicator
+router.post('/typing/stop', async (req, res) => {
+    const { sessionId, chatId } = req.body;
+
+    try {
+        const socket = await getSocket(req, sessionId);
+        const jid = chatId.includes('@') ? chatId : `${chatId}@s.whatsapp.net`;
+
+        await socket.sendPresenceUpdate('paused', jid);
+        res.json({ success: true, message: 'Typing indicator stopped' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

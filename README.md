@@ -42,8 +42,10 @@
 - **QR Code Scanner** - Easy WhatsApp authentication
 
 ### 🔌 Comprehensive API
-- ✅ **15+ REST API Endpoints** for complete WhatsApp automation
+- ✅ **17+ REST API Endpoints** for complete WhatsApp automation
 - ✅ **Send Messages** - Text, images, documents, locations, and more
+- ✅ **Quote/Reply Messages** - Reply to specific messages in groups or private chats
+- ✅ **Typing Indicator** - Show/hide typing status programmatically
 - ✅ **Group Management** - Create groups, manage participants
 - ✅ **Contact Management** - Fetch and manage contacts
 - ✅ **Status Updates** - Post WhatsApp status programmatically
@@ -391,6 +393,158 @@ print_r($result);
   "message": "Message sent"
 }
 ```
+
+---
+
+#### Send Quote/Reply Message
+
+**Endpoint:** `POST /api/messages/send-text`
+
+Reply to a specific message by providing the `quotedMessageId`.
+
+**Request Body:**
+```json
+{
+  "sessionId": "MySession",
+  "chatId": "628123456789",
+  "text": "This is a reply to your message",
+  "quotedMessageId": "3EB0123456789ABCDEF"
+}
+```
+
+**PHP Example:**
+```php
+<?php
+$data = [
+    'sessionId' => 'MySession',
+    'chatId' => '628123456789',
+    'text' => 'This is a reply!',
+    'quotedMessageId' => '3EB0123456789ABCDEF'  // Message ID to quote
+];
+
+$ch = curl_init('http://localhost:3001/api/messages/send-text');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json',
+    'x-api-key: your_secret_api_key'
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+print_r(json_decode($response, true));
+?>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Message sent"
+}
+```
+
+> **Note**: Get message ID from webhook events or message logs.
+
+---
+
+#### Start Typing Indicator
+
+**Endpoint:** `POST /api/messages/typing/start`
+
+Show "typing..." indicator in the chat.
+
+**Request Body:**
+```json
+{
+  "sessionId": "MySession",
+  "chatId": "628123456789"
+}
+```
+
+**PHP Example:**
+```php
+<?php
+$data = [
+    'sessionId' => 'MySession',
+    'chatId' => '628123456789'
+];
+
+$ch = curl_init('http://localhost:3001/api/messages/typing/start');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json',
+    'x-api-key: your_secret_api_key'
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+print_r(json_decode($response, true));
+?>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Typing indicator started"
+}
+```
+
+---
+
+#### Stop Typing Indicator
+
+**Endpoint:** `POST /api/messages/typing/stop`
+
+Stop "typing..." indicator in the chat.
+
+**Request Body:**
+```json
+{
+  "sessionId": "MySession",
+  "chatId": "628123456789"
+}
+```
+
+**PHP Example:**
+```php
+<?php
+$data = [
+    'sessionId' => 'MySession',
+    'chatId' => '628123456789'
+];
+
+$ch = curl_init('http://localhost:3001/api/messages/typing/stop');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json',
+    'x-api-key: your_secret_api_key'
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+print_r(json_decode($response, true));
+?>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Typing indicator stopped"
+}
+```
+
+> **Note**: Typing indicator auto-stops after ~30 seconds if not manually stopped.
 
 ---
 
