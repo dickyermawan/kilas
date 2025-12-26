@@ -15,12 +15,14 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
       - SESSION_DIR=/app/sessions
       - MEDIA_DIR=/app/media
+      - DATA_DIR=/app/data
       - API_KEY=${API_KEY:-admin123}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
     volumes:
       # Use named volumes for automatic permission handling
       - sessions_data:/app/sessions
       - media_data:/app/media
+      - db_data:/app/data
     networks:
       - kilas-network
     # healthcheck:
@@ -43,4 +45,6 @@ volumes:
   sessions_data:
     driver: local
   media_data:
+    driver: local
+  db_data:
     driver: local

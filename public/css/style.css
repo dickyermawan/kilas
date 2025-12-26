@@ -1646,3 +1646,255 @@ input:checked+.toggle-slider:before {
 .toast-close i {
     font-size: 14px;
 }
+
+/* ==================== FLOATING BACK TO TOP BUTTON ==================== */
+.back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    z-index: 999;
+}
+
+.back-to-top:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* ==================== OUTGOING MESSAGES TABLE ==================== */
+.outgoing-table {
+    width: 100%;
+    min-width: 900px;
+}
+
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Message Status Badges */
+.msg-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.msg-status-badge.status-pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.msg-status-badge.status-sent {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+.msg-status-badge.status-delivered {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8b5cf6;
+}
+
+.msg-status-badge.status-read {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.msg-status-badge.status-failed {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+/* Message Type Badges */
+.msg-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+/* Outgoing Table Cell Styles */
+.outgoing-table td {
+    vertical-align: middle;
+    padding: 0.875rem 1rem;
+    text-align: center;
+}
+
+.outgoing-table th {
+    text-align: center;
+}
+
+.outgoing-table .cell-session {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.outgoing-table .cell-recipient {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8125rem;
+}
+
+.outgoing-table .cell-endpoint {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.outgoing-table .cell-time {
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+/* Clickable type badge */
+.msg-type-badge.clickable:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.outgoing-table .cell-endpoint {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.outgoing-table .cell-time {
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+/* Mobile Responsive for Outgoing Messages */
+@media (max-width: 768px) {
+    .back-to-top {
+        bottom: 1.5rem;
+        right: 1.5rem;
+        width: 45px;
+        height: 45px;
+        font-size: 1rem;
+    }
+
+    .outgoing-table {
+        font-size: 0.875rem;
+    }
+
+    .outgoing-table td,
+    .outgoing-table th {
+        padding: 0.75rem 0.625rem;
+    }
+
+    .msg-status-badge {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.6875rem;
+    }
+}
+
+/* ==================== PRIMARY STAT ICON ==================== */
+.stat-icon.primary {
+    color: var(--accent-info);
+    background: var(--accent-info-bg);
+}
+
+/* ==================== PAGER STYLES ==================== */
+.pager-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    border-radius: 0 0 12px 12px;
+}
+
+.pager-container .btn-sm {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8125rem;
+    min-width: 36px;
+    border-radius: 6px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pager-container .btn-sm:hover:not([disabled]) {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+.pager-container .btn-sm[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pager-container .pager-info {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 0 0.5rem;
+}
+
+.pager-container .pager-total {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .pager-container {
+        flex-wrap: wrap;
+        gap: 0.375rem;
+    }
+
+    .pager-container .btn-sm {
+        min-width: 32px;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .pager-container .pager-info {
+        font-size: 0.75rem;
+    }
+}

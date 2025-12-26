@@ -177,6 +177,28 @@ class BaileysHandler {
 
             // Handle Messages Update (read receipts, edits)
             this.socket.ev.on('messages.update', async (updates) => {
+                // Emit real-time status updates for UI
+                for (const update of updates) {
+                    if (update.update?.status) {
+                        const statusMap = {
+                            1: 'pending',
+                            2: 'sent',
+                            3: 'delivered',
+                            4: 'read'
+                        };
+                        const status = statusMap[update.update.status] || 'pending';
+
+                        // Emit to frontend for real-time UI update
+                        this.io.emit('message:status', {
+                            sessionId: this.sessionId,
+                            messageId: update.key?.id,
+                            status: status,
+                            timestamp: Date.now()
+                        });
+                    }
+                }
+
+                // Send webhook as usual
                 if (this.webhookSender) {
                     const result = await this.webhookSender.send(this.sessionId, 'messages.update', updates);
                     if (result) {
@@ -189,6 +211,33 @@ class BaileysHandler {
             this.socket.ev.on('messages.delete', async (deletion) => {
                 if (this.webhookSender) {
                     const result = await this.webhookSender.send(this.sessionId, 'messages.delete', deletion);
+                    if (result) {
+                        this.io.emit('webhook:sent', result);
+                    }
+                }
+            });
+
+            // Handle Message Receipt Update (read receipts when recipient has chat open)
+            this.socket.ev.on('message-receipt.update', async (receipts) => {
+                for (const receipt of receipts) {
+                    // Check for read receipt
+                    if (receipt.receipt?.readTimestamp || receipt.receipt?.receiptTimestamp) {
+                        const messageId = receipt.key?.id;
+                        if (messageId) {
+                            // Emit read status to frontend
+                            this.io.emit('message:status', {
+                                sessionId: this.sessionId,
+                                messageId: messageId,
+                                status: 'read',
+                                timestamp: Date.now()
+                            });
+                        }
+                    }
+                }
+
+                // Send webhook
+                if (this.webhookSender) {
+                    const result = await this.webhookSender.send(this.sessionId, 'message-receipt.update', receipts);
                     if (result) {
                         this.io.emit('webhook:sent', result);
                     }

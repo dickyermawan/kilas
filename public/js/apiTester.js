@@ -36,6 +36,13 @@ const endpoints = {
             "address": "Jakarta, Indonesia"
         }
     },
+    'GET /api/messages/status/:messageId': {
+        method: 'GET',
+        urlParams: true,
+        body: {
+            "messageId": "3EB0XXXXX..."
+        }
+    },
 
     // ===== GROUPS =====
     'GET /api/groups/:sessionId': {
@@ -258,6 +265,12 @@ document.getElementById('btnSendRequest').addEventListener('click', async () => 
         const num = body.number || prompt('Enter Phone Number:');
         if (!num) return;
         url = url.replace(':number', num);
+    }
+
+    if (url.includes(':messageId')) {
+        const msgId = body.messageId || prompt('Enter Message ID:');
+        if (!msgId) return;
+        url = url.replace(':messageId', msgId);
     }
 
     try {

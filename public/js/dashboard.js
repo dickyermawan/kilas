@@ -139,6 +139,20 @@ window.app = {
         }
     },
 
+    // Clear Live Events log
+    clearEventLog: function () {
+        const eventLog = document.getElementById('monitorEventLog');
+        if (eventLog) {
+            eventLog.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i><br>
+                    No data available yet. Events will appear here in real-time.
+                </div>
+            `;
+            sessionStorage.removeItem('kirimkan_events');
+        }
+    },
+
     bindEvents: function () {
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {

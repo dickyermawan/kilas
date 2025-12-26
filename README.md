@@ -60,6 +60,17 @@
 - 🐳 **Docker Support** - Easy deployment with Docker Compose
 - 📝 **Comprehensive Logging** - Track all activities with Pino logger
 
+### 🗄️ SQLite Data Persistence (NEW)
+- 💾 **Persistent Storage** - All dashboard data stored in SQLite database
+- 📤 **Outgoing Messages** - Track all sent messages with status (pending/sent/delivered/read)
+- 📡 **Webhook History** - Webhook logs persist across server restarts
+- ⚡ **Live Events** - Events history saved and survives page refresh
+- 🔍 **Message Detail Modal** - View full message content, Message ID, and API response
+- ⏱️ **Real-time Status Updates** - See message delivery status (✓ sent, ✓✓ delivered, ✓✓ read)
+- 📊 **Full Pager Navigation** - First, Prev, Next, Last with page info (Page X of Y)
+- 🏠 **Zero-Config** - SQLite database auto-creates on startup
+- 🐳 **Docker Volume** - Data persists across container restarts
+
 ### 🔗 Integration Support
 - 🤖 **n8n Workflow Automation** - Official n8n community node available
 - 📦 **Easy Installation** - Install via `@dickyermawan/n8n-nodes-kilas`
@@ -343,6 +354,68 @@ docker compose down -v
 | `CORS_ORIGIN` | CORS allowed origins (* for all, or comma-separated domains) | `*` |
 | `SESSION_DIR` | Directory for session data | `./sessions` |
 | `MEDIA_DIR` | Directory for media files | `./media` |
+| `DATA_DIR` | Directory for SQLite database | `./data` |
+
+---
+
+## 🤖 n8n Integration
+
+Kilas has official support for **[n8n](https://n8n.io/)** - the powerful workflow automation platform. Build WhatsApp automation workflows visually with no code required!
+
+### Installation
+
+Install the Kilas community node in your n8n instance:
+
+```bash
+# In your n8n installation directory
+npm install @dickyermawan/n8n-nodes-kilas
+```
+
+Or install via n8n UI:
+1. Go to **Settings** → **Community Nodes**
+2. Click **Install**
+3. Enter: `@dickyermawan/n8n-nodes-kilas`
+4. Click **Install**
+
+### Features
+
+- ✅ **Send Messages** - Text, images, documents, locations
+- ✅ **Quote/Reply** - Reply to specific messages
+- ✅ **Typing Indicator** - Control typing status
+- ✅ **Session Management** - Create and manage WhatsApp sessions
+- ✅ **Webhook Trigger** - Receive WhatsApp events in real-time
+- ✅ **Group Management** - Create groups, manage participants
+- ✅ **Contact Operations** - Fetch and manage contacts
+
+### Quick Start
+
+1. **Add Kilas Credentials**
+   - Node: `Kilas API`
+   - Base URL: `http://localhost:3001`
+   - API Key: Your configured API key
+
+2. **Create Workflow**
+   - Trigger: Kilas Webhook (receive messages)
+   - Action: Kilas (send reply)
+
+3. **Example Workflow**
+   ```
+   Webhook Trigger → Filter → Kilas Send Message
+   ```
+
+### Use Cases
+
+- 📱 **Customer Support Bot** - Auto-reply to customer inquiries
+- 🔔 **Notifications** - Send alerts from any system to WhatsApp
+- 📊 **CRM Integration** - Sync WhatsApp messages with your CRM
+- 🤖 **Chatbot** - Build intelligent chatbots with AI integration
+- 📅 **Appointment Reminders** - Automated scheduling notifications
+
+### Resources
+
+- **n8n Node Package**: [@dickyermawan/n8n-nodes-kilas](https://www.npmjs.com/package/@dickyermawan/n8n-nodes-kilas)
+- **n8n Documentation**: [n8n.io/docs](https://docs.n8n.io/)
+- **Workflow Templates**: Coming soon!
 
 ---
 
@@ -551,6 +624,57 @@ print_r(json_decode($response, true));
 ```
 
 > **Note**: Typing indicator auto-stops after ~30 seconds if not manually stopped.
+
+---
+
+#### Check Message Status
+
+**Endpoint:** `GET /api/messages/status/:messageId`
+
+Check delivery status of a sent message (pending/sent/delivered/read).
+
+**URL Parameters:**
+- `messageId`: The message ID returned when sending a message
+
+**PHP Example:**
+```php
+<?php
+$messageId = '3EB0ABC123XYZ'; // Message ID from send response
+
+$ch = curl_init("http://localhost:3001/api/messages/status/{$messageId}");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'x-api-key: your_secret_api_key'
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+print_r(json_decode($response, true));
+?>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "messageId": "3EB0ABC123XYZ",
+  "status": "read",
+  "sessionId": "MySession",
+  "recipient": "628123456789",
+  "messageType": "text",
+  "createdAt": "2025-12-26T07:30:00.000Z",
+  "updatedAt": "2025-12-26T07:35:00.000Z"
+}
+```
+
+**Status Values:**
+| Status | Description |
+|--------|-------------|
+| `pending` | Message queued, not yet sent |
+| `sent` | Message sent to WhatsApp server (✓) |
+| `delivered` | Message delivered to recipient (✓✓) |
+| `read` | Message read by recipient (✓✓ blue) |
 
 ---
 
@@ -1236,67 +1360,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-
----
-
-## 🤖 n8n Integration
-
-Kilas has official support for **[n8n](https://n8n.io/)** - the powerful workflow automation platform. Build WhatsApp automation workflows visually with no code required!
-
-### Installation
-
-Install the Kilas community node in your n8n instance:
-
-```bash
-# In your n8n installation directory
-npm install @dickyermawan/n8n-nodes-kilas
-```
-
-Or install via n8n UI:
-1. Go to **Settings** → **Community Nodes**
-2. Click **Install**
-3. Enter: `@dickyermawan/n8n-nodes-kilas`
-4. Click **Install**
-
-### Features
-
-- ✅ **Send Messages** - Text, images, documents, locations
-- ✅ **Quote/Reply** - Reply to specific messages
-- ✅ **Typing Indicator** - Control typing status
-- ✅ **Session Management** - Create and manage WhatsApp sessions
-- ✅ **Webhook Trigger** - Receive WhatsApp events in real-time
-- ✅ **Group Management** - Create groups, manage participants
-- ✅ **Contact Operations** - Fetch and manage contacts
-
-### Quick Start
-
-1. **Add Kilas Credentials**
-   - Node: `Kilas API`
-   - Base URL: `http://localhost:3001`
-   - API Key: Your configured API key
-
-2. **Create Workflow**
-   - Trigger: Kilas Webhook (receive messages)
-   - Action: Kilas (send reply)
-
-3. **Example Workflow**
-   ```
-   Webhook Trigger → Filter → Kilas Send Message
-   ```
-
-### Use Cases
-
-- 📱 **Customer Support Bot** - Auto-reply to customer inquiries
-- 🔔 **Notifications** - Send alerts from any system to WhatsApp
-- 📊 **CRM Integration** - Sync WhatsApp messages with your CRM
-- 🤖 **Chatbot** - Build intelligent chatbots with AI integration
-- 📅 **Appointment Reminders** - Automated scheduling notifications
-
-### Resources
-
-- **n8n Node Package**: [@dickyermawan/n8n-nodes-kilas](https://www.npmjs.com/package/@dickyermawan/n8n-nodes-kilas)
-- **n8n Documentation**: [n8n.io/docs](https://docs.n8n.io/)
-- **Workflow Templates**: Coming soon!
 
 ---
 

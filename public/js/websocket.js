@@ -104,3 +104,31 @@ socket.on('event:log', (data) => {
     }
 });
 
+// Outgoing message real-time update
+socket.on('outgoing:message', (data) => {
+    // Update outgoing messages manager if available
+    if (window.outgoingMessagesManager) {
+        window.outgoingMessagesManager.addMessage(data);
+    }
+});
+
+// Message status real-time update (sent/delivered/read)
+socket.on('message:status', async (data) => {
+    console.log('Received message:status event:', data);
+
+    // Update outgoing messages manager if available (real-time UI)
+    if (window.outgoingMessagesManager) {
+        window.outgoingMessagesManager.updateStatusEfficient(data.messageId, data.status);
+    }
+
+    // Persist status to database via API
+    if (data.messageId && data.status && window.app) {
+        try {
+            await window.app.apiCall(`/api/logs/outgoing/${data.messageId}`, 'PATCH', {
+                status: data.status
+            });
+        } catch (err) {
+            console.error('Failed to persist message status:', err);
+        }
+    }
+});

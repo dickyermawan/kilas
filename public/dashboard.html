@@ -86,7 +86,10 @@
                     <i class="fas fa-code"></i> API Playground
                 </button>
                 <button class="main-tab-btn" data-main-tab="webhook">
-                    <i class="fas fa-webhook"></i> Webhook
+                    <i class="fas fa-link"></i> Webhook
+                </button>
+                <button class="main-tab-btn" data-main-tab="outgoing-messages">
+                    <i class="fas fa-paper-plane"></i> Outgoing Messages
                 </button>
             </div>
 
@@ -97,8 +100,24 @@
                 <div class="logs-layout">
                     <!-- Webhook History -->
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header"
+                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                             <h3><i class="fas fa-history"></i> Webhook History</h3>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <select id="webhookPageSize" class="form-control"
+                                    style="width: auto; min-width: 100px; font-size: 0.875rem;">
+                                    <option value="10">10</option>
+                                    <option value="50" selected>50</option>
+                                    <option value="100">100</option>
+                                    <option value="250">250</option>
+                                    <option value="500">500</option>
+                                    <option value="all">All</option>
+                                </select>
+                                <button id="btnClearWebhook" class="btn btn-danger" style="font-size: 0.875rem;"
+                                    onclick="window.webhookLogger?.clearHistory()">
+                                    <i class="fas fa-trash"></i> Clear
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body no-padding" style="overflow-x: auto;">
                             <table class="webhook-history-table">
@@ -122,6 +141,8 @@
                                 </tbody>
                             </table>
                         </div>
+                        <!-- Pager -->
+                        <div id="webhookPager" class="pager-container"></div>
                     </div>
 
                     <!-- Live Events -->
@@ -129,7 +150,14 @@
                         <div class="live-events-header">
                             <h3 style="font-size: 1rem; margin: 0; color: var(--text-primary);"><i
                                     class="fas fa-bolt"></i> Live Events</h3>
-                            <div class="listening-indicator">LISTENING</div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div class="listening-indicator">LISTENING</div>
+                                <button class="btn btn-sm"
+                                    style="padding: 0.25rem 0.5rem; background: transparent; border: 1px solid var(--border-color);"
+                                    onclick="window.app?.clearEventLog()" title="Clear Events">
+                                    <i class="fas fa-trash" style="color: var(--accent-danger);"></i>
+                                </button>
+                            </div>
                         </div>
                         <div id="monitorEventLog" class="event-log">
                             <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
@@ -440,6 +468,63 @@
                     </div>
                 </div>
             </div>
+
+            <!-- =============== PESAN KELUAR TAB =============== -->
+            <div id="outgoing-messages" class="main-tab-content">
+                <div class="card">
+                    <div class="card-header"
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-paper-plane" style="color: var(--accent-primary);"></i>
+                            Outgoing Messages History
+                        </h2>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                            <select id="outgoingPageSize" class="form-control"
+                                style="width: auto; min-width: 100px; font-size: 0.875rem;">
+                                <option value="10">10</option>
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                                <option value="250">250</option>
+                                <option value="500">500</option>
+                                <option value="all">All</option>
+                            </select>
+                            <button id="btnRefreshOutgoing" class="btn btn-secondary" style="font-size: 0.875rem;">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button id="btnClearOutgoing" class="btn btn-danger" style="font-size: 0.875rem;">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div id="outgoingMessagesContainer" class="table-container"
+                        style="max-height: 600px; overflow-y: auto;">
+                        <table class="data-table outgoing-table">
+                            <thead>
+                                <tr>
+                                    <th>Session</th>
+                                    <th>Recipient</th>
+                                    <th>Type</th>
+                                    <th>Endpoint</th>
+                                    <th>Response</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="outgoingMessagesTable">
+                                <tr>
+                                    <td colspan="7"
+                                        style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                        <i class="fas fa-inbox"></i><br>
+                                        No outgoing messages yet. Messages will appear here when you send them.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pager -->
+                    <div id="outgoingPager" class="pager-container"></div>
+                </div>
+            </div>
         </main>
 
         <!-- Footer -->
@@ -505,10 +590,11 @@
     <script src="/js/theme.js"></script>
     <script src="/js/toast.js"></script>
     <script src="/js/webhookLogger.js"></script>
-    <script src="/js/dashboard.js?v=2"></script>
+    <script src="/js/dashboard.js?v=3"></script>
     <script src="/js/websocket.js"></script>
     <script src="/js/apiTester.js"></script>
     <script src="/js/webhook.js"></script>
+    <script src="/js/outgoingMessages.js"></script>
     <script>
         // Main Tab Switching
         document.querySelectorAll('.main-tab-btn').forEach(btn => {
@@ -521,6 +607,11 @@
                 btn.classList.add('active');
                 const tabId = btn.getAttribute('data-main-tab');
                 document.getElementById(tabId).classList.add('active');
+
+                // Initialize outgoing messages when tab is clicked
+                if (tabId === 'outgoing-messages' && typeof initOutgoingMessages === 'function') {
+                    initOutgoingMessages();
+                }
             });
         });
     </script>
@@ -590,6 +681,100 @@
             </div>
         </div>
     </div>
+
+    <!-- Outgoing Message Detail Modal -->
+    <div id="outgoingDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="outgoingMessagesManager?.closeModal()">&times;</span>
+            <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-paper-plane" style="color: var(--accent-primary);"></i>
+                Message Detail
+            </h2>
+
+            <!-- Info Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label
+                        style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Session</label>
+                    <p id="outDetailSession" style="font-weight: 600; margin: 0.25rem 0 0 0;">-</p>
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Message
+                        ID</label>
+                    <p id="outDetailMessageId"
+                        style="font-family: 'Courier New', monospace; font-size: 0.75rem; margin: 0.25rem 0 0 0; word-break: break-all;">
+                        -</p>
+                </div>
+                <div>
+                    <label
+                        style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Recipient</label>
+                    <p id="outDetailRecipient" style="font-family: 'Courier New', monospace; margin: 0.25rem 0 0 0;">-
+                    </p>
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Type</label>
+                    <p id="outDetailType" style="margin: 0.25rem 0 0 0;">-</p>
+                </div>
+                <div>
+                    <label
+                        style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Endpoint</label>
+                    <p id="outDetailEndpoint"
+                        style="font-family: 'Courier New', monospace; font-size: 0.8rem; margin: 0.25rem 0 0 0;">-</p>
+                </div>
+                <div>
+                    <label
+                        style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Status</label>
+                    <p id="outDetailStatus" style="margin: 0.25rem 0 0 0;">-</p>
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">API
+                        Response</label>
+                    <p id="outDetailApiStatus" style="margin: 0.25rem 0 0 0;">-</p>
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Time</label>
+                    <p id="outDetailTime" style="margin: 0.25rem 0 0 0;">-</p>
+                </div>
+            </div>
+
+            <!-- Message Content -->
+            <div style="margin-bottom: 1rem;">
+                <label style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">
+                    <i class="fas fa-comment"></i> Message Content
+                </label>
+                <pre id="outDetailContent"
+                    style="background: var(--bg-secondary); padding: 1rem; border-radius: 6px; overflow-x: auto; max-height: 200px; margin: 0; font-size: 0.875rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word;">-</pre>
+            </div>
+
+            <!-- Error (if any) -->
+            <div style="margin-bottom: 1rem; display: none;">
+                <label
+                    style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; display: block; color: #ef4444;">
+                    <i class="fas fa-exclamation-circle"></i> Error
+                </label>
+                <pre id="outDetailError"
+                    style="background: rgba(239, 68, 68, 0.1); padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 0; font-size: 0.8rem; color: #ef4444;">-</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="btnBackToTop" class="back-to-top" title="Back to Top"
+        onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script>
+        // Back to Top Button Visibility
+        const backToTopBtn = document.getElementById('btnBackToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+    </script>
 
 </body>
 
