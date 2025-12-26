@@ -16,6 +16,10 @@ auth_info_baileys/
 media/
 uploads/
 
+# Database (SQLite)
+data/
+*.db
+
 # Logs
 logs/
 *.log
