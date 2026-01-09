@@ -119,7 +119,16 @@ window.app = {
                 const response = await window.app.apiCall('/api/logs/webhook?limit=1');
                 if (response && response.success && response.data && response.data.length > 0) {
                     const latestWebhook = response.data[0];
-                    const webhookTime = new Date(latestWebhook.created_at);
+
+                    // Parse SQLite timestamp as UTC (same as webhookLogger and formatTime)
+                    let webhookTime;
+                    const timestamp = latestWebhook.created_at;
+                    if (typeof timestamp === 'string' && !timestamp.includes('T') && !timestamp.includes('Z') && !timestamp.includes('+')) {
+                        // SQLite format without timezone - treat as UTC
+                        webhookTime = new Date(timestamp.replace(' ', 'T') + 'Z');
+                    } else {
+                        webhookTime = new Date(timestamp);
+                    }
 
                     const now = new Date();
                     const diff = Math.floor((now - webhookTime) / 1000);
