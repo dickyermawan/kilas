@@ -33,7 +33,9 @@ class Database {
         return new Promise((resolve, reject) => {
             this.db = new sqlite3.Database(dbPath, (err) => {
                 if (err) {
-                    this.logger.error('Failed to open database:', err);
+                    this.logger.error('Failed to open database:', err.message);
+                    this.logger.error('Database path:', dbPath);
+                    this.logger.error('Error stack:', err.stack);
                     reject(err);
                     return;
                 }
@@ -44,7 +46,11 @@ class Database {
                         this.initialized = true;
                         resolve();
                     })
-                    .catch(reject);
+                    .catch((schemaErr) => {
+                        this.logger.error('Failed to initialize database:', schemaErr.message);
+                        this.logger.error('Schema error stack:', schemaErr.stack);
+                        reject(schemaErr);
+                    });
             });
         });
     }

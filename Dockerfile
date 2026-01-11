@@ -41,8 +41,8 @@ COPY --from=builder /app/node_modules ./node_modules
 # Copy application files
 COPY . .
 
-# Create directories for sessions and media with proper permissions
-RUN mkdir -p /app/sessions /app/media /app/media/uploads /app/public/images && \
+# Create directories for sessions, media, and database with proper permissions
+RUN mkdir -p /app/sessions /app/media /app/media/uploads /app/data /app/public/images && \
     chown -R nodejs:nodejs /app
 
 # Switch to non-root user
